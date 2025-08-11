@@ -1418,7 +1418,7 @@ Study First Info Team`
                   </Form.Select>
                 </Form.Group>
               </Col>
-
+{/* 
               <Col md={8}>
                 <Form.Label>Preferred Countries</Form.Label>
                 <div>
@@ -1437,7 +1437,7 @@ Study First Info Team`
                     />
                   ))}
                 </div>
-              </Col>
+              </Col> */}
             </Row>
 
             <Row className="mb-3">
