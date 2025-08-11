@@ -1837,6 +1837,7 @@ Study First Info Team`
                     {selectedInquiry?.preferred_countries?.join(", ")}
                   </p>
                 </Col>
+                {/* asfas */}
               </Row>
               {/* Add buttons here */}
               <Row className="mb-3">
