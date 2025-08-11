@@ -208,6 +208,7 @@ const Inquiry = () => {
       },
       preferredCountries: [],
     });
+    handleCloseInquiryModal();
   };
 
   const handleShowFollowUpModal = () => setShowFollowUpModal(true);
