@@ -14,6 +14,8 @@ import {
   BsWhatsapp,
   BsArrowRepeat,
   BsSearch,
+  BsEnvelope,
+  BsTelephone
 } from "react-icons/bs";
 import api from "../../interceptors/axiosInterceptor";
 import "./Lead.css";
@@ -41,12 +43,24 @@ const LeadTable = ({ show, handleClose }) => {
   const [documents, setDocuments] = useState([]);
   const [universities, setUniversities] = useState([]);
 
+  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false);
+const [selectedLead, setSelectedLead] = useState(null);
+
+const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+const [showNotesModal, setShowNotesModal] = useState(false);
+// ...existing code...
+
   const [filters, setFilters] = useState({
     status: "",
     counselor: "",
     followUp: "",
     country: "",
     search: "",
+    startDate: "",
+    endDate: "",
+    source: "",
+    branch: "",
+    leadType: ""
   });
 
   const user_id = localStorage.getItem("user_id");
@@ -169,6 +183,28 @@ const LeadTable = ({ show, handleClose }) => {
 
     if (filters.country) {
       data = data.filter((lead) => lead.country === filters.country);
+    }
+
+    // New filters
+    if (filters.startDate && filters.endDate) {
+      data = data.filter((lead) => {
+        const leadDate = new Date(lead.created_at);
+        const startDate = new Date(filters.startDate);
+        const endDate = new Date(filters.endDate);
+        return leadDate >= startDate && leadDate <= endDate;
+      });
+    }
+
+    if (filters.source) {
+      data = data.filter((lead) => lead.source === filters.source);
+    }
+
+    if (filters.branch) {
+      data = data.filter((lead) => lead.branch === filters.branch);
+    }
+
+    if (filters.leadType) {
+      data = data.filter((lead) => lead.inquiry_type === filters.leadType);
     }
 
     setFilteredData(data);
@@ -366,6 +402,12 @@ const LeadTable = ({ show, handleClose }) => {
         }));
       }
     }, [formData.full_name, formData.university_id, universities]);
+
+    // Get unique values for filter dropdowns
+    const uniqueSources = [...new Set(convertData.map(lead => lead.source))].filter(Boolean);
+    const uniqueBranches = [...new Set(convertData.map(lead => lead.branch_name))].filter(Boolean);
+    const uniqueLeadTypes = [...new Set(convertData.map(lead => lead.inquiry_type))].filter(Boolean);
+
   return (
     <div className="p-4">
       <h2 className="">Lead Table</h2>
@@ -373,11 +415,38 @@ const LeadTable = ({ show, handleClose }) => {
       {/* === FILTER SECTION === */}
       <div className="mb-3 p-3 bg-light rounded border">
         <Row className="g-2 align-items-end">
+          {/* Date Range Filters */}
           <Col md={2}>
+            <Form.Group>
+              <Form.Label>Start Date</Form.Label>
+              <Form.Control
+                type="date"
+                size="sm"
+                value={filters.startDate}
+                onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={2}>
+            <Form.Group>
+              <Form.Label>End Date</Form.Label>
+              <Form.Control
+                type="date"
+                size="sm"
+                value={filters.endDate}
+                onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+              />
+            </Form.Group>
+          </Col>
+
+          {/* Existing Filters */}
+          <Col md={2}>
+          <Form.Label>All Sources</Form.Label>
             <Form.Select
               size="sm"
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+
             >
               <option value="">All Statuses</option>
               <option>New Lead</option>
@@ -392,6 +461,7 @@ const LeadTable = ({ show, handleClose }) => {
           </Col>
 
           <Col md={2}>
+          <Form.Label>All Counselors</Form.Label>
             <Form.Select
               size="sm"
               value={filters.counselor}
@@ -409,6 +479,7 @@ const LeadTable = ({ show, handleClose }) => {
           </Col>
 
           <Col md={2}>
+          <Form.Label>Follow Up</Form.Label>
             <Form.Select
               size="sm"
               value={filters.followUp}
@@ -422,6 +493,7 @@ const LeadTable = ({ show, handleClose }) => {
           </Col>
 
           <Col md={2}>
+          <Form.Label>All Country</Form.Label>
             <Form.Select
               size="sm"
               value={filters.country}
@@ -439,7 +511,61 @@ const LeadTable = ({ show, handleClose }) => {
             </Form.Select>
           </Col>
 
+          {/* New Filters */}
           <Col md={2}>
+          <Form.Label>All Sources</Form.Label>
+            <Form.Select
+              size="sm"
+              value={filters.source}
+              onChange={(e) => setFilters({ ...filters, source: e.target.value })}
+            >
+              <option value="">All Sources</option>
+              {uniqueSources.map((source, i) => (
+                <option key={i} value={source}>
+                  {source}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+
+          <Col md={2}>
+          <Form.Label>All Branches</Form.Label>
+            <Form.Select
+              size="sm"
+              value={filters.branch}
+              onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
+            >
+              <option value="">All Branches</option>
+              <option value="Dhaka">Dhaka</option>
+              <option value="Sylhet">Sylhet</option>
+              {uniqueBranches.map((branch, i) => (
+                branch !== "Dhaka" && branch !== "Sylhet" && (
+                  <option key={i} value={branch}>
+                    {branch}
+                  </option>
+                )
+              ))}
+            </Form.Select>
+          </Col>
+
+          <Col md={2}>
+          <Form.Label>All Lead Types</Form.Label>
+            <Form.Select
+              size="sm"
+              value={filters.leadType}
+              onChange={(e) => setFilters({ ...filters, leadType: e.target.value })}
+            >
+              <option value="">All Lead Types</option>
+              {uniqueLeadTypes.map((type, i) => (
+                <option key={i} value={type}>
+                  {type}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+
+          <Col md={2}>
+          <Form.Label>Search</Form.Label>
             <InputGroup size="sm">
               <Form.Control
                 placeholder="Search by name, email or phone"
@@ -463,8 +589,12 @@ const LeadTable = ({ show, handleClose }) => {
                   followUp: "",
                   country: "",
                   search: "",
+                  startDate: "",
+                  endDate: "",
+                  source: "",
+                  branch: "",
+                  leadType: ""
                 });
-                toast.dismiss(); // Clear any filter-related toasts
               }}
             >
               Reset
@@ -502,19 +632,23 @@ const LeadTable = ({ show, handleClose }) => {
       <div className="table-responsive">
         <Table bordered hover>
           <thead className="table-light">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>City</th>
-              <th>Course</th>
-              <th>Source</th>
-              <th>Status</th>
-              <th>Counselor</th>
-              <th>Follow-Up</th>
-              <th>Actions</th>
-            </tr>
+             <tr>
+    <th>#</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Phone</th>
+    <th>Country</th>
+    <th>Branch</th>
+    <th>Enquiry Type</th>
+    <th>Course</th>
+    <th>Source</th>
+    <th>Status</th>
+    <th>Counselor</th>
+    <th>Follow-Up</th>
+    <th>Created At</th>
+    <th>View</th> {/* New View column */}
+    <th>Actions</th>
+  </tr>
           </thead>
           <tbody>
             {filteredData.map((lead, index) => (
@@ -523,7 +657,9 @@ const LeadTable = ({ show, handleClose }) => {
                 <td>{lead.full_name || "N/A"}</td>
                 <td>{lead.email || "N/A"}</td>
                 <td>{lead.phone_number || "N/A"}</td>
-                <td>{lead.city || "N/A"}</td>
+                <td>{lead.country || "N/A"}</td>
+                <td>{lead.branch || "N/A"}</td>
+                <td>{lead.inquiry_type || "N/A"}</td>
                 <td>{lead.course_name || "N/A"}</td>
                 <td>{lead.source || "N/A"}</td>
                 <td>
@@ -531,23 +667,62 @@ const LeadTable = ({ show, handleClose }) => {
                     {lead.new_leads == 0 ? "New Lead" : lead.new_leads || "N/A"}
                   </span>
                 </td>
-
                 <td>
-                  {lead.counselor_name ? (
-                    lead.counselor_name
-                  ) : (
-                    <Button
-                      variant="info"
-                      size="sm"
-                      className="me-2"
-                      onClick={() => handleOpenAssignModal(lead)}
-                    >
-                      Assign Counselor
-                    </Button>
-                  )}
+                  {lead.counselor_id ? (
+    <span
+      className="badge bg-info"
+      role="button"
+      style={{ cursor: "pointer" }}
+      onClick={() => handleOpenAssignModal(lead)}
+    >
+      {lead.counselor_name || "Assigned"}
+    </span>
+  ) : (
+    <Button
+      variant="info"
+      size="sm"
+      className="me-2"
+      onClick={() => handleOpenAssignModal(lead)}
+    >
+      Assign Counselor
+    </Button>
+  )}
                 </td>
-
                 <td>{lead.follow_up_date?.slice(0, 10) || "N/A"}</td>
+                <td>{lead.created_at ? lead.created_at.slice(0, 10) : "N/A"}</td>
+                <td>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedLead(lead);
+                      setShowLeadDetailsModal(true);
+                    }}
+                  >
+                    View Lead
+                  </Button>
+
+            {/* add follow up and add lead  */}
+  <Button
+    variant="outline-primary"
+    size="sm"
+    onClick={() => window.location.href = `/follow-up-history/${lead.id}`}
+  >
+    Follow-Up History
+  </Button>
+
+<Button
+  variant="outline-primary"
+  size="sm"
+  onClick={() => {
+    setSelectedLead(lead);
+    setShowNotesModal(true);
+  }}
+>
+  Add Notes
+</Button>
+
+                </td>
                 <td className="d-flex">
                   <Form.Select
                     size="sm"
@@ -577,14 +752,54 @@ const LeadTable = ({ show, handleClose }) => {
                     </Button>
                   )}
 
-                  <Button
+               <Button
                     variant="outline-success"
+                    className=" btn btn-sm btn-outline-success me-2 py-1"
                     size="sm"
                     onClick={() => window.open(`https://wa.me/${lead.phone_number}`, '_blank')}
                   >
-                    <BsWhatsapp className="me-1" /> WhatsApp
+                    <i className="bi bi-whatsapp  "></i>
                   </Button>
-                </td>
+
+                  <a
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${lead.email}&su=Regarding Your Lead&body=${encodeURIComponent(
+      `Dear ${lead.full_name},
+
+Here are your lead details:
+
+- Name: ${lead.full_name}
+- Phone: ${lead.phone_number}
+- Email: ${lead.email}
+- Inquiry Type: ${lead.inquiry_type}
+- Source: ${lead.source}
+- Branch: ${lead.branch}
+- Counselor: ${lead.counselor_name || 'Not Assigned'}
+- Country: ${lead.country}
+- Created At: ${lead.created_at ? lead.created_at.slice(0, 10) : ''}
+- Status: ${lead.new_leads}
+
+Thank you for your interest.
+
+Regards,
+Study First Info Team`
+    )}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="btn btn-sm btn-outline-dark"
+    style={{ display: "flex", alignItems: "center" }}
+  >
+    <BsEnvelope className="me-1" />
+  </a>
+
+    <a
+    href={`tel:${lead.phone_number}`}
+    className="btn btn-sm btn-outline-primary ms-2"
+    style={{ display: "flex", alignItems: "center" }}
+    title="Call"
+  >
+    <BsTelephone className="me-1" />
+  </a>
+</td>
               </tr>
             ))}
           </tbody>
@@ -593,13 +808,14 @@ const LeadTable = ({ show, handleClose }) => {
         {/* Assign Modal */}
         <Modal show={showAssignModal} onHide={handleCloseAssignModal} centered>
           <Modal.Header closeButton>
-            <Modal.Title>Assign Counselor</Modal.Title>
+            <Modal.Title>
+      {selectedInquiry?.counselor_id ? "Update Counselor" : "Assign Counselor"}
+    </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {selectedInquiry && (
               <>
-                <p><strong>Inquiry:</strong> {selectedInquiry.full_name}</p>
-
+                <p><strong>Lead:</strong> {selectedInquiry.full_name}</p>
                 <Form.Group className="mb-3">
                   <Form.Label>Counselor *</Form.Label>
                   <Form.Select
@@ -616,7 +832,6 @@ const LeadTable = ({ show, handleClose }) => {
                     ))}
                   </Form.Select>
                 </Form.Group>
-
                 <Form.Group className="mb-3">
                   <Form.Label>Follow-Up Date *</Form.Label>
                   <Form.Control
@@ -625,7 +840,6 @@ const LeadTable = ({ show, handleClose }) => {
                     onChange={(e) => setFollowUpDate(e.target.value)}
                   />
                 </Form.Group>
-
                 <Form.Group className="mb-3">
                   <Form.Label>Notes</Form.Label>
                   <Form.Control
@@ -641,7 +855,9 @@ const LeadTable = ({ show, handleClose }) => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseAssignModal}>Cancel</Button>
-            <Button variant="primary" onClick={handleAssignCounselor}>Assign</Button>
+            <Button variant="primary" onClick={handleAssignCounselor}>
+      {selectedInquiry?.counselor_id ? "Update Counselor" : "Assign Counselor"}
+    </Button>
           </Modal.Footer>
         </Modal>
 
@@ -875,6 +1091,206 @@ const LeadTable = ({ show, handleClose }) => {
       </Form>
     </Modal.Body>
   </Modal>
+
+        {/* Lead Details Modal */}
+    <Modal
+  show={showLeadDetailsModal}
+  onHide={() => setShowLeadDetailsModal(false)}
+  centered
+  size="lg"
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Lead Details</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedLead && (
+      <div>
+        {/* Personal Information */}
+        <h5 className="mb-3">Personal Information</h5>
+        <Row className="mb-2">
+          <Col md={6}><strong>Name:</strong> {selectedLead.full_name}</Col>
+          <Col md={6}><strong>Email:</strong> {selectedLead.email}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Phone:</strong> {selectedLead.phone_number}</Col>
+          <Col md={6}><strong>Gender:</strong> {selectedLead.gender}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Date of Birth:</strong> {selectedLead.date_of_birth?.slice(0, 10)}</Col>
+          <Col md={6}><strong>City:</strong> {selectedLead.city}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Address:</strong> {selectedLead.address}</Col>
+          <Col md={6}><strong>Present Address:</strong> {selectedLead.present_address}</Col>
+        </Row>
+
+        {/* Inquiry Info */}
+        <h5 className="mt-4 mb-3">Inquiry Details</h5>
+        <Row className="mb-2">
+          <Col md={6}><strong>Inquiry Type:</strong> {selectedLead.inquiry_type}</Col>
+          <Col md={6}><strong>Source:</strong> {selectedLead.source}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Branch:</strong> {selectedLead.branch}</Col>
+          <Col md={6}><strong>Country:</strong> {selectedLead.country}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Course Name:</strong> {selectedLead.course_name}</Col>
+          <Col md={6}><strong>Status:</strong> {selectedLead.lead_status}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Payment Status:</strong> {selectedLead.payment_status}</Col>
+          <Col md={6}><strong>Eligibility Status:</strong> {selectedLead.eligibility_status}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Follow-Up Date:</strong> {selectedLead.follow_up_date?.slice(0, 10) || "N/A"}</Col>
+          <Col md={6}><strong>Date of Inquiry:</strong> {selectedLead.date_of_inquiry?.slice(0, 10)}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Created At:</strong> {selectedLead.created_at?.slice(0, 10)}</Col>
+          <Col md={6}><strong>Updated At:</strong> {selectedLead.updated_at?.slice(0, 10)}</Col>
+        </Row>
+
+        {/* Education Background */}
+        <h5 className="mt-4 mb-3">Education Background</h5>
+        <Row className="mb-2">
+          <Col md={6}><strong>Highest Level:</strong> {selectedLead.highest_level}</Col>
+          <Col md={6}><strong>Study Level:</strong> {selectedLead.study_level}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Study Field:</strong> {selectedLead.study_field}</Col>
+          <Col md={6}><strong>Intake:</strong> {selectedLead.intake}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Budget:</strong> {selectedLead.budget}</Col>
+          <Col md={6}><strong>University:</strong> {selectedLead.university}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Study Gap:</strong> {selectedLead.study_gap}</Col>
+          <Col md={6}><strong>Visa Refused:</strong> {selectedLead.visa_refused}</Col>
+        </Row>
+        {selectedLead.visa_refused === "yes" && (
+          <Row className="mb-2">
+            <Col md={12}><strong>Refusal Reason:</strong> {selectedLead.refusal_reason}</Col>
+          </Row>
+        )}
+
+        {/* English Proficiency */}
+        <h5 className="mt-4 mb-3">English Proficiency</h5>
+        <Row className="mb-2">
+          <Col md={6}><strong>Test Type:</strong> {selectedLead.test_type}</Col>
+          <Col md={6}><strong>Overall Score:</strong> {selectedLead.overall_score}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={3}><strong>Reading:</strong> {selectedLead.reading_score}</Col>
+          <Col md={3}><strong>Writing:</strong> {selectedLead.writing_score}</Col>
+          <Col md={3}><strong>Speaking:</strong> {selectedLead.speaking_score}</Col>
+          <Col md={3}><strong>Listening:</strong> {selectedLead.listening_score}</Col>
+        </Row>
+
+        {/* Work Experience */}
+        <h5 className="mt-4 mb-3">Work Experience</h5>
+        <Row className="mb-2">
+          <Col md={6}><strong>Company Name:</strong> {selectedLead.company_name}</Col>
+          <Col md={6}><strong>Job Title:</strong> {selectedLead.job_title}</Col>
+        </Row>
+        <Row className="mb-2">
+          <Col md={6}><strong>Job Duration:</strong> {selectedLead.job_duration}</Col>
+        </Row>
+
+        {/* Additional Info */}
+        <h5 className="mt-4 mb-3">Additional Info</h5>
+        <Row className="mb-2">
+          {/* <Col md={6}><strong>Preferred Countries:</strong> {selectedLead.preferred_countries}</Col> */}
+                    <Col md={6}><strong>Counselor Name:</strong> {selectedLead.counselor_name}</Col>
+          <Col md={6}><strong>Notes:</strong> {selectedLead.notes}</Col>
+        </Row>
+        <Row className="mb-2">
+
+          {/* <Col md={6}><strong>Assignment Description:</strong> {selectedLead.assignment_description}</Col> */}
+        </Row>
+      </div>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowLeadDetailsModal(false)}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+{/* showfollowup modal */}
+
+<Modal show={showFollowUpModal} onHide={() => setShowFollowUpModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>Add Follow-Up</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedLead && (
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>Follow-Up Date</Form.Label>
+          <Form.Control type="date" />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Follow-Up Notes</Form.Label>
+          <Form.Control as="textarea" rows={3} placeholder="Enter notes..." />
+        </Form.Group>
+        {/* Random field example */}
+        <Form.Group className="mb-3">
+          <Form.Label>Next Action</Form.Label>
+          <Form.Control type="text" placeholder="e.g. Call, Email, Meeting" />
+        </Form.Group>
+      </Form>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowFollowUpModal(false)}>
+      Cancel
+    </Button>
+    <Button variant="primary">
+      Save
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
+
+<Modal show={showNotesModal} onHide={() => setShowNotesModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>Add Notes</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedLead && (
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>Notes</Form.Label>
+          <Form.Control as="textarea" rows={4} placeholder="Write your notes here..." />
+        </Form.Group>
+        {/* Random field example */}
+        <Form.Group className="mb-3">
+          <Form.Label>Note Type</Form.Label>
+          <Form.Select>
+            <option value="">Select Type</option>
+            <option value="General">General</option>
+            <option value="Follow-Up">Follow-Up</option>
+            <option value="Important">Important</option>
+          </Form.Select>
+        </Form.Group>
+      </Form>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowNotesModal(false)}>
+      Cancel
+    </Button>
+    <Button variant="primary">
+      Save
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
       </div>
     </div>
   );

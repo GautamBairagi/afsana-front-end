@@ -316,6 +316,9 @@ const StaffInquiry = () => {
     source: "",
     startDate: "",
     endDate: "",
+    Branch: "",
+    inquiryType: "",
+    status: "",
   });
 
   useEffect(() => {
@@ -346,6 +349,23 @@ const StaffInquiry = () => {
     if (filters.counselor) {
       data = data?.filter((inq) => String(inq.counselor_id) === filters.counselor);
     }
+
+    
+    // Inquiry Type Filter
+    if (filters.inquiryType) {
+      data = data.filter((inq) => inq.inquiry_type === filters.inquiryType);
+    }
+
+    
+    if (filters.Branch) {
+      data = data?.filter((inq) => inq.branch === filters.Branch);
+    }
+
+    // Status Filter
+    if (filters.status) {
+      data = data.filter((inq) => inq.lead_status.toLowerCase() == filters.status.toLowerCase());
+    }
+
 
     // Date Range Filter
     if (filters.startDate && filters.endDate) {
@@ -781,6 +801,60 @@ const StaffInquiry = () => {
             Reset
           </Button>
         </Col>
+        <Col md={4}>
+          <label><small>Branch</small></label>
+          <Form.Select
+            style={{ height: "40px" }}
+            value={filters.Branch}
+            onChange={(e) =>
+              setFilters({ ...filters, Branch: e.target.value })
+            }
+          >
+            <option value="">All Branch</option>
+            <option value="Dhaka">Dhaka</option>
+            <option value="Sylhet">Sylhet</option>
+          </Form.Select>
+        </Col>
+
+        <Col md={4}>
+          <label><small>Inquiry Type</small></label>
+          <Form.Select
+            style={{ height: "40px" }}
+            value={filters.inquiryType}
+            onChange={(e) =>
+              setFilters({ ...filters, inquiryType: e.target.value })
+            }
+          >
+            <option value="">Select Inquiry Type</option>
+            <option value="student_visa">Student Visa</option>
+            <option value="visit_visa">Visit Visa</option>
+            <option value="work_visa">Work Visa</option>
+            <option value="short_visa">Short Visa</option>
+            <option value="german_course">German Course</option>
+            <option value="english_course">English Course</option>
+            <option value="others">Others</option>
+          </Form.Select>
+        </Col>
+
+        <Col md={4}>
+          <label><small>Status</small></label>
+          <Form.Select
+            style={{ height: "40px" }}
+            value={filters.status}
+            onChange={(e) =>
+              setFilters({ ...filters, status: e.target.value })
+            }
+          >
+            <option value="">Select Status</option>
+            <option value={"0"}>New</option>
+            <option value="Check Eligibility">Check Eligibility</option>
+            <option value="Converted to Lead">Converted to Lead</option>
+            <option value="Not Eligible">Not Eligible</option>
+            <option value="Not Interested">Not Interested</option>
+            <option value="Duplicate">Duplicate</option>
+
+          </Form.Select>
+        </Col>
       </Row>
 
 
@@ -925,7 +999,7 @@ const StaffInquiry = () => {
 
 
                 <td>
-                  {(inq.lead_status === "0" || inq.lead_status === "New") ? (
+                  {/* {(inq.lead_status === "0" || inq.lead_status === "New") ? (
                     <span
                       style={{ cursor: 'pointer', color: '#0d6efd', fontWeight: 'bold' }}
                       onClick={() => {
@@ -961,7 +1035,43 @@ const StaffInquiry = () => {
                     </Badge>
                   ) : (
                     <Badge bg="dark" style={{ fontWeight: "bold" }}>-</Badge>
-                  )}
+                  )} */}
+                  <span
+                        style={{
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          display: 'inline-block',
+                          fontSize: '13px',
+                          padding: '0px 7px',
+                          borderRadius: '5px',
+                          color:
+                            inq.lead_status === "In Review"
+                              ? "#000" // Black text for yellow bg ✅
+                              : inq.lead_status === "Check Eligibility" || inq.lead_status === "0"
+                                ? "#0d6efd" // Blue text
+                                : "#fff", // White text for colored backgrounds
+                          backgroundColor:
+                            inq.lead_status === "New"
+                              ? "#198754"
+                              : inq.lead_status === "In Review"
+                                ? "#ffc107"
+                                : inq.lead_status === "Converted to Lead"
+                                  ? "#0d6efd"
+                                  : inq.lead_status === "Not Eligible"
+                                    ? "#dc3545"
+                                    : inq.lead_status === "Not Interested"
+                                      ? "#6c757d"
+                                      : inq.lead_status === "Duplicate"
+                                        ? "#fd7e14"
+                                        : "transparent",
+                        }}
+                        onClick={() => {
+                          setSelectedInquiry(inq);
+                          setInquiryDetailsModal(true);
+                        }}
+                      >
+                        {inq.lead_status === "0" ? "Check Eligibility" : inq.lead_status || '-'}
+                      </span>
                 </td>
 
 
@@ -1725,7 +1835,7 @@ Study First Info Team`
         </Modal.Body>
       </Modal>
 
-      <Modal
+      {/* <Modal
         show={showInquiryDetailsModal}
         onHide={() => setInquiryDetailsModal(false)}
         centered
@@ -1866,7 +1976,6 @@ Study First Info Team`
                   </p>
                 </Col>
               </Row>
-              {/* Add buttons here */}
               <Row className="mb-3">
                 <Col className="d-flex gap-3">
                   <Button variant="danger" onClick={() => handleStatusChange("Not Eligible")}>
@@ -1890,7 +1999,198 @@ Study First Info Team`
             Close
           </Button>
         </Modal.Footer>
+      </Modal> */}
+
+
+      <Modal
+        show={showInquiryDetailsModal}
+        onHide={() => setInquiryDetailsModal(false)}
+        centered
+        size="lg"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Inquiry Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedInquiry && (
+            <div>
+              {/* Personal Information */}
+              <h5>Personal Information</h5>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Name:</strong> {selectedInquiry.full_name}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>Email:</strong> {selectedInquiry.email}</p>
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Phone:</strong> {selectedInquiry.phone_number}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>City:</strong> {selectedInquiry.city}</p>
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Country:</strong> {selectedInquiry.country}</p>
+                </Col>
+                <Col md={6}>
+                  <p>
+                    <strong>Inquiry Date:</strong>{" "}
+                    {new Date(selectedInquiry.date_of_inquiry).toLocaleDateString()}
+                  </p>
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Address:</strong> {selectedInquiry.address}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>Present Address:</strong> {selectedInquiry.present_address}</p>
+                </Col>
+              </Row>
+
+              {/* Education */}
+              <h5 className="mt-4">Education & Background</h5>
+              <Row className="mb-3">
+                <Col md={12}>
+                  <p>
+                    <strong>Education:</strong>{" "}
+                    {selectedInquiry?.education_background?.length > 0 ? (
+                      selectedInquiry.education_background.map((edu, index) => (
+                        <span key={index}>
+                          {edu.level?.toUpperCase()} (GPA: {edu.gpa}, Year: {edu.year})
+                          {index !== selectedInquiry.education_background.length - 1 && " | "}
+                        </span>
+                      ))
+                    ) : (
+                      "No data"
+                    )}
+                  </p>
+                </Col>
+              </Row>
+
+              {/* English Proficiency */}
+              <Row className="mb-3">
+                <Col md={12}>
+                  <p>
+                    <strong>English Proficiency:</strong><br />
+                    <strong>Test:</strong> {selectedInquiry.test_type || "N/A"}<br />
+                    <strong>Overall:</strong> {selectedInquiry.overall_score || "N/A"}<br />
+                    <strong>Reading:</strong> {selectedInquiry.reading_score || "N/A"} |{" "}
+                    <strong>Writing:</strong> {selectedInquiry.writing_score || "N/A"} |{" "}
+                    <strong>Speaking:</strong> {selectedInquiry.speaking_score || "N/A"} |{" "}
+                    <strong>Listening:</strong> {selectedInquiry.listening_score || "N/A"}
+                  </p>
+                </Col>
+              </Row>
+
+              {/* Job Experience */}
+              {selectedInquiry?.job_title && (
+                <>
+                  <h5 className="mt-4">Job Experience</h5>
+                  <Row className="mb-3">
+                    <Col md={4}>
+                      <p><strong>Company:</strong> {selectedInquiry.company_name}</p>
+                    </Col>
+                    <Col md={4}>
+                      <p><strong>Job Title:</strong> {selectedInquiry.job_title}</p>
+                    </Col>
+                    <Col md={4}>
+                      <p><strong>Duration:</strong> {selectedInquiry.job_duration}</p>
+                    </Col>
+                  </Row>
+                </>
+              )}
+
+              {/* Course & Program Info */}
+              <h5 className="mt-4">Course & Program Info</h5>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Course Name:</strong> {selectedInquiry.course_name || "No data"}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>Study Level:</strong> {selectedInquiry.study_level || "No data"}</p>
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Field of Study:</strong> {selectedInquiry.study_field || "No data"}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>Intake:</strong> {selectedInquiry.intake || "No data"}</p>
+                </Col>
+              </Row>
+
+              {/* Budget & Study Gap */}
+              <h5 className="mt-4">Budget & Gaps</h5>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Initial Budget:</strong> {selectedInquiry.budget ? `$${selectedInquiry.budget}` : "No data"}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>Study Gap:</strong> {selectedInquiry.study_gap || "No gap"}</p>
+                </Col>
+              </Row>
+
+              {/* Visa History */}
+              <h5 className="mt-4">Visa History</h5>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p>
+                    <strong>Visa Refused Before?:</strong>{" "}
+                    {selectedInquiry.visa_refused
+                      ? selectedInquiry.visa_refused.charAt(0).toUpperCase() + selectedInquiry.visa_refused.slice(1)
+                      : "No"}
+                  </p>
+                </Col>
+                {selectedInquiry.visa_refused?.toLowerCase() === "yes" && (
+                  <Col md={6}>
+                    <p><strong>Refusal Reason:</strong> {selectedInquiry.refusal_reason || "Not specified"}</p>
+                  </Col>
+                )}
+              </Row>
+
+              {/* Other Details */}
+              <h5 className="mt-4">Other Details</h5>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Medium:</strong> {selectedInquiry.medium || "No data"}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>University:</strong> {selectedInquiry.university || "No data"}</p>
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={6}>
+                  <p><strong>Highest Level Completed:</strong> {selectedInquiry.highest_level?.toUpperCase() || "No data"}</p>
+                </Col>
+                <Col md={6}>
+                  <p><strong>Source:</strong> {selectedInquiry.source || "No data"}</p>
+                </Col>
+              </Row>
+
+              {/* Action Buttons */}
+              <Row className="mb-3">
+                <Col className="d-flex gap-3">
+                  <Button variant="danger" onClick={() => handleStatusChange("Not Eligible")}>Not Eligible</Button>
+                  <Button variant="warning" onClick={() => handleStatusChange("Not Interested")}>Not Interested</Button>
+                  <Button variant="success" onClick={() => handleStatusChange("Converted to Lead")}>Convert to Lead</Button>
+                </Col>
+              </Row>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setInquiryDetailsModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
+
+
     </div>
   );
 };

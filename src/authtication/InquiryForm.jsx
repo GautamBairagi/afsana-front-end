@@ -328,6 +328,9 @@ const InquiryForm = () => {
                 <option value="Latvia">Latvia</option>
                 <option value="Germany">Germany</option>
                 <option value="New Zealand">New Zealand</option>
+                <option value="Estonia">Estonia</option>
+                <option value="Australia">Australia</option>
+                <option value="South Korea">South Korea</option>
                 <option value="Others">Others</option>
               </Form.Select>
             </Form.Group>
@@ -549,7 +552,7 @@ const InquiryForm = () => {
             </Form.Group>
           </Col>
 
-          <Col md={8}>
+          {/* <Col md={8}>
             <Form.Label>Preferred Countries</Form.Label>
             <div>
               {["Hungary", "UK", "Cyprus", "Canada", "Malaysia", "Lithuania", "Latvia", "Germany", "New Zealand",].map((country) => (
@@ -567,7 +570,7 @@ const InquiryForm = () => {
                 />
               ))}
             </div>
-          </Col>
+          </Col> */}
         </Row>
 
         <Row className="mb-3">
@@ -587,7 +590,7 @@ const InquiryForm = () => {
         </Row>
 
         <h5 className="mt-4 mb-3">English Proficiency</h5>
-        <Row className="mb-3">
+        {/* <Row className="mb-3">
           <Col md={3}>
             <Form.Group controlId="testType">
               <Form.Label>Test Type</Form.Label>
@@ -647,8 +650,10 @@ const InquiryForm = () => {
               />
             </Form.Group>
           </Col>
-        </Row>
+        </Row> */}
 
+
+        {/* 
         <Row className="mb-3">
           <Col md={3}>
             <Form.Group controlId="speakingScore">
@@ -677,7 +682,145 @@ const InquiryForm = () => {
               />
             </Form.Group>
           </Col>
+        </Row> */}
+        <Row className="mb-3">
+          <Col md={3}>
+            <Form.Group controlId="testType">
+              <Form.Label>Test Type</Form.Label>
+              <Form.Select
+                value={newInquiry.testType}
+                onChange={(e) =>
+                  setNewInquiry({ ...newInquiry, testType: e.target.value })
+                }
+              >
+                <option value="">Select</option>
+                <option value="ielts">IELTS</option>
+                <option value="toefl">TOEFL</option>
+                <option value="duolingo">Duolingo</option>
+                <option value="no_test">No Test Yet</option>
+                <option value="PTE">PTE</option>
+                <option value="OtherText">Other Text</option>
+              </Form.Select>
+            </Form.Group>
+          </Col>
+
+          {/* Agar OtherText hai to sirf custom input show kare */}
+          {newInquiry.testType === "OtherText" && (
+            <Col md={3}>
+              <Form.Group controlId="customTestType">
+                <Form.Label>Enter Test Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter custom test name"
+                  value={newInquiry.customTestType || ""}
+                  onChange={(e) =>
+                    setNewInquiry({
+                      ...newInquiry,
+                      customTestType: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+            </Col>
+          )}
+
+          {/* Agar OtherText nahi hai lekin koi aur option select hai to score inputs show kare */}
+          {newInquiry.testType &&
+            newInquiry.testType !== "OtherText" && (
+              <>
+                <Col md={3}>
+                  <Form.Group controlId="overallScore">
+                    <Form.Label>Overall Band Score</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. 6.5"
+                      value={newInquiry.overallScore}
+                      onChange={(e) =>
+                        setNewInquiry({
+                          ...newInquiry,
+                          overallScore: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={3}>
+                  <Form.Group controlId="readingScore">
+                    <Form.Label>Reading Score</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. 6.5"
+                      value={newInquiry.readingScore}
+                      onChange={(e) =>
+                        setNewInquiry({
+                          ...newInquiry,
+                          readingScore: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={3}>
+                  <Form.Group controlId="writingScore">
+                    <Form.Label>Writing Score</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. 6.0"
+                      value={newInquiry.writingScore}
+                      onChange={(e) =>
+                        setNewInquiry({
+                          ...newInquiry,
+                          writingScore: e.target.value,
+                        })
+                      }
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Row className="mb-3">
+                  <Col md={3}>
+                    <Form.Group controlId="speakingScore">
+                      <Form.Label>Speaking Score</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g. 7.0"
+                        value={newInquiry.speakingScore}
+                        onChange={(e) =>
+                          setNewInquiry({
+                            ...newInquiry,
+                            speakingScore: e.target.value,
+                          })
+                        }
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={3}>
+                    <Form.Group controlId="listeningScore">
+                      <Form.Label>Listening Score</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="e.g. 6.5"
+                        value={newInquiry.listeningScore}
+                        onChange={(e) =>
+                          setNewInquiry({
+                            ...newInquiry,
+                            listeningScore: e.target.value,
+                          })
+                        }
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </>
+            )}
         </Row>
+
+
+
+
         <h5 className="mt-4 mb-3">Work & Visa History</h5>
         <Row className="mb-3">
           <Col md={4}>

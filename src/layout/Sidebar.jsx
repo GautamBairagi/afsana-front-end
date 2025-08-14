@@ -97,7 +97,8 @@ const Sidebar = ({ login, collapsed, toggleSidebar }) => {
         submenu: [
           { name: "Add Counselor", path: "/addcounselor" },
           { name: "Add Staff", path: "/addStaff" },
-          { name: "Tasks", path: "/tasks" }
+          { name: "Tasks", path: "/tasks" },
+          { name: "Processor", path: "/addProcessor" }
         ]
       },
       {

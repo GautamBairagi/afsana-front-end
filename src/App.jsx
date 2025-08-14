@@ -99,6 +99,7 @@ import ProcessorStudentDetailsTable from "./components/ProcessorStudentDetails/P
 import ProcessorProfile from "./components/ProcessorStudentDetails/ProcessordetailsPage";
 import CounselorProfile from "./components/CounseloDetailsPage/CounselorProfile";
 import CounselorStudentDetails from "./components/CounseloDetailsPage/CounselorstudentDetails";
+import FollowUpHistory from "./components/Lead & Inquiry Management/FollowUpHistory";
 
 
 function App() {
@@ -299,6 +300,7 @@ function App() {
 
               {/* Follow Up */}
               <Route path="/followup" element={<ProtectedRoute><FollowUpScheduling /></ProtectedRoute>} />
+              <Route path="/follow-up-history/:id" element={<FollowUpHistory />} />
 
               {/* Automated Reminders */}
               <Route path="/reminder" element={<ProtectedRoute><AutomatedReminders /></ProtectedRoute>} />
